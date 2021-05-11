@@ -1,4 +1,6 @@
-import sys,math,pygame
+import sys
+import math
+import pygame
 
 LIGHT_BROWN = (218,185,154)
 DARK_BROWN = (72,46,39)
