@@ -1,6 +1,7 @@
 import sys
 import math
 import pygame
+from board import Board
 
 LIGHT_BROWN = (218, 185, 154)
 DARK_BROWN = (72, 46, 39)
@@ -22,7 +23,7 @@ PIECE_IMAGES = [
 ]
 
 
-def render(screen, board, selected_tile):
+def render(screen, board):
     screen.fill((255, 255, 255))
     for row in range(8):
         for col in range(8):
@@ -30,43 +31,31 @@ def render(screen, board, selected_tile):
             if col % 2 != row % 2:
                 color = DARK_BROWN
             if (
-                selected_tile
-                and selected_tile[0] == col
-                and selected_tile[1] == row
+                board.selected_tile
+                and board.selected_tile[0] == col
+                and board.selected_tile[1] == row
             ):
                 color = YELLOW
             pygame.draw.rect(
                 screen, color, (60 + col * 60, 60 + row * 60, 60, 60)
             )
 
-            if board[row][col] != 0:
+            if board.get_tile((col,row)) != 0:
                 screen.blit(
-                    PIECE_IMAGES[board[row][col]],
+                    PIECE_IMAGES[board.get_tile((col,row))],
                     (60 + col * 60, 60 + row * 60),
                 )
-
 
 def handle_mouse(pos):
     if pos[0] < 60 or pos[0] > 540 or pos[1] < 60 or pos[1] > 540:
         return None
     return (math.floor(pos[0] / 60) - 1, math.floor(pos[1] / 60) - 1)
 
-
 def main():
     pygame.init()
 
-    board = [
-        [10, 11, 9, 8, 7, 9, 11, 10],
-        [12, 12, 12, 12, 12, 12, 12, 12],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [6, 6, 6, 6, 6, 6, 6, 6],
-        [4, 5, 3, 2, 1, 3, 5, 4],
-    ]
+    board = Board()
     screen = pygame.display.set_mode((600, 600))
-    selected_tile = None
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -74,15 +63,10 @@ def main():
             elif event.type == pygame.MOUSEBUTTONUP:
                 pos = pygame.mouse.get_pos()
                 index = handle_mouse(pos)
-                if (
-                    board[index[1]][index[0]] != 0
-                    and board[index[1]][index[0]] <= 6
-                ):
-                    selected_tile = index
-                else:
-                    selected_tile = None
+                if index is not None:
+                    board.mouse_click(index)
 
-        render(screen, board, selected_tile)
+        render(screen, board)
         pygame.display.update()
 
 
